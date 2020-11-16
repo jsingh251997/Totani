@@ -1,25 +1,16 @@
 <?php
 
-//update.php
-
-$connect = new PDO('mysql:host=localhost;dbname=testing', 'root', '');
-
-if(isset($_POST["id"]))
-{
- $query = "
- UPDATE events 
- SET title=:title, start_event=:start_event, end_event=:end_event 
- WHERE id=:id
- ";
- $statement = $connect->prepare($query);
- $statement->execute(
-  array(
-   ':title'  => $_POST['title'],
-   ':start_event' => $_POST['start'],
-   ':end_event' => $_POST['end'],
-   ':id'   => $_POST['id']
-  )
- );
-}
+    echo("INSIDE POST ID");
+    $id=$_POST['data'];
+    echo $id;  
+    echo("<br>");
+    echo("AFTER ID PRINT");
+    $db = mysqli_connect("localhost","root","","totani_alerts");
+    $res = mysqli_query($db, "SELECT DISTINCT Time FROM posts WHERE id = '$id'");
+    while($row = mysqli_fetch_array($res)) {
+        echo($row['Time']);
+        echo("<br>");
+    }
+    // $id = 1;
 
 ?>

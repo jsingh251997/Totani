@@ -1,25 +1,28 @@
 <?php
 
-//insert.php
+//INSERT ADDS THE ACTUAL EVENTS TO THE CALENDAR
 
-$connect = new PDO('mysql:host=localhost;dbname=testing', 'root', '');
+$connect = new PDO('mysql:host=localhost;dbname=totani_alerts', 'root', '');
 
-if(isset($_POST["title"]))
+$data = array();
+
+$query = "SELECT * FROM posts ORDER BY id";
+
+$statement = $connect->prepare($query);
+
+$statement->execute();
+
+$result = $statement->fetchAll();
+
+foreach($result as $row)
 {
- $query = "
- INSERT INTO events 
- (title, start_event, end_event) 
- VALUES (:title, :start_event, :end_event)
- ";
- $statement = $connect->prepare($query);
- $statement->execute(
-  array(
-   ':title'  => $_POST['title'],
-   ':start_event' => $_POST['start'],
-   ':end_event' => $_POST['end']
-  )
+ $data[] = array(
+  'id'   => $row["id"],
+  'title'   => $row["Section"],
+  'start'   => $row["Time"],
+  'Section' => $row["Section"]
  );
 }
-
+echo json_encode($data);
 
 ?>

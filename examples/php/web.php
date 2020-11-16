@@ -1,7 +1,3 @@
-<?php 
-include_once 'db.inc.php';
-?>
-
 <!DOCTYPE html>
 <html>
 <head>
@@ -21,33 +17,53 @@ include_once 'db.inc.php';
   <script src="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/3.4.0/fullcalendar.min.js"></script>
 <!-- JS, Popper.js, and jQuery -->
 
-<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
+<script src="https://code.jquery.com/jquery-3.1.1.min.js" type="text/javascript"></script>
 <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js" integrity="sha384-9/reFTGAW83EW2RDu2S0VKaIzap3H66lZH81PoYlFhbGU+6BZp6G7niu735Sk7lN" crossorigin="anonymous"></script>
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js" integrity="sha384-B4gt1jrGC7Jh4AgTPSdUtOBvfO8shuf57BaghqFfPlYxofvL8/KUEfYiJOMMV+rV" crossorigin="anonymous"></script>
 
-
+<p id="serverResponse"></p>
 <script>
-
+  var test;
+  // const xhr = new XMLHttpRequest();
+  // xhr.onload = function(){
+  //   const serverResponse = document.getElementById("serverResponse");
+  //   serverResponse.innerHTML = this.responseText;
+  // }
   document.addEventListener('DOMContentLoaded', function() {
     var calendarEl = document.getElementById('calendar');
-
     var calendar = new FullCalendar.Calendar(calendarEl, {
       headerToolbar: {
         left: 'prev,next today',
         center: 'title',
         right: 'dayGridMonth,timeGridWeek,timeGridDay'
       },
-    initialDate: '2020-09-12',
+    initialDate: '2020-11-10',
     navLinks: true, // can click day/week names to navigate views
     selectable: true,
     selectMirror: true,
     eventClick: function (info) {
         //set the values and open the modal
-            $('#modalTitle').html(info.event.classNames);
+            $('#modalTitle').html(info.event.title);
             $('#modalBody').html(info.event.description);
             $('#calendarModal').modal();
+            var eventObj = info.event;
+            id = eventObj.id;
+            test = id;
+            console.log("ID IS "+id);
+            console.log("TEST IS "+test);
+            // xhr.open("POST","update.php");
+            // xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+            // xhr.send(id);
+            $.ajax({
+              url:"update.php",
+              type:"POST",
+              data:{data:test},
+              success: function(data){
+                console.log('raw data posted is:'+id);
+              }
+            })
     },
-    events:'load.php',
+    events:'insert.php',
     });
     calendar.render();
 
@@ -73,7 +89,7 @@ include_once 'db.inc.php';
 
   <div id='calendar'></div>
 
-    <form action="/events" method="POST">
+  <form method="POST" name="search" action="web.php">
         <div class="modal" id="calendarModal" style="width:35%; height:50%; top:5%; left:35%">
             <div class="modal-content">
                 <div class="modal-header">
@@ -82,22 +98,79 @@ include_once 'db.inc.php';
                 <div class="modal-body">
                     <div class="input-group mb-3">
                         <div class="input-group-prepend">
-                          <span class="input-group-text" id="basic-addon1">Description:</span>
+                          <span class="input-group-text">Section:</span>
                         </div>
-                        <input type="text" class="form-control" placeholder="John Smith" aria-describedby="basic-addon1">
+                        <select name="Section" id="Sect">
+                        <option selected="Section" value="PartA">PartA</option>
+                        <option selected="Section" value="PartB">PartB</option>
+                        <option selected="Section" value="PartC">PartC</option>
+                        <option selected="Section" value="PartD">PartD</option>
+                        <label Section="Solution">Solution</label>
+                        </select>
+                        <p id="modalBody" class="modal-Desc"></p>
+                    </div>
+                    <div class="input-group mb-3">
+                        <div class="input-group-prepend">
+                          <span class="input-group-text">Problem:</span>
+                        </div>
+                        <select name="Problem" id="Prob">
+                        <option selected="Problem" value="Operator Error">Slow Production</option>
+                        <option selected="Problem" value="Machine Breakdown">Machine Breakdown</option>
+                        <label for="Problem">Problem</label>
+                        </select>
+                        <p id="modalBody" class="modal-Desc"></p>
+                    </div>
+                    <div class="input-group mb-3">
+                        <div class="input-group-prepend">
+                          <span class="input-group-text">Cause:</span>
+                        </div>
+                        <select name="Cause" id="Cau">
+                        <option selected="Cause" value="JAM">JAM</option>
+                        <option selected="Cause" value="Operator Error">Operator Error</option>
+                        <label for="Cause">Cause</label>
+                        </select>
+                        <p id="modalBody" class="modal-Desc"></p>
+                    </div>
+                    <div class="input-group mb-3">
+                        <div class="input-group-prepend">
+                          <span class="input-group-text">Solution:</span>
+                        </div>
+                        <select name="Solution" id="Sol">
+                        <option selected="Solution" value="Slow Production">Slow Production</option>
+                        <option selected="Solution" value="Restart Machine">Restart Machine</option>
+                        <label for="Solution">Solution</label>
+                        </select>
                         <p id="modalBody" class="modal-Desc"></p>
                     </div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                    <button type="submit" class="btn btn-secondary">Submit</button>
+                    <button type="submit" name="btn_submit" class="btn btn-secondary">Submit</button>
                 </div>
             </div>
         </div>
       <!-- {{csrf_field()}} -->
     </form>
-
-  
+    <?php
+    // if( isset($_POST['id']) ){
+    //   echo("INSIDE POST ID");
+    //   $output = array();
+    //   $id = $_POST['id'];
+    //   $output['items'] = "$id";
+    //   echo json_encode($output['items']);
+    // }
+    if ( isset( $_POST['btn_submit'] ) ) {
+      $secUpdate = $_POST['Section'];
+      $probUpdate = $_POST['Problem'];
+      $causUpdate = $_POST['Cause'];
+      $solUpdate = $_POST['Solution'];
+      $conn = mysqli_connect("localhost","root","","totani_alerts");
+      $sql = "Update posts SET Section ='$secUpdate',Problem='$probUpdate',Cause='$causUpdate',
+      Solution='$solUpdate'";
+      echo($sql);
+      $result = $conn-> query($sql);
+    }
+    ?>
 
 </body>
 </html>
