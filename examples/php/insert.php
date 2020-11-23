@@ -20,7 +20,6 @@ foreach($result as $row)
   'id'   => $row["id"],
   'title'   => $row["Section"],
   'start'   => $row["Time"],
-  'Section' => $row["Section"]
  );
 }
 echo json_encode($data);

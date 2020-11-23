@@ -7,8 +7,6 @@
 <script src='../../node_modules/moment/moment.js'></script>
 <!-- CSS only -->
 <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous">
-
-
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/3.4.0/fullcalendar.css" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.0.0-alpha.6/css/bootstrap.css" />
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
@@ -20,24 +18,43 @@
 <script src="https://code.jquery.com/jquery-3.1.1.min.js" type="text/javascript"></script>
 <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js" integrity="sha384-9/reFTGAW83EW2RDu2S0VKaIzap3H66lZH81PoYlFhbGU+6BZp6G7niu735Sk7lN" crossorigin="anonymous"></script>
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js" integrity="sha384-B4gt1jrGC7Jh4AgTPSdUtOBvfO8shuf57BaghqFfPlYxofvL8/KUEfYiJOMMV+rV" crossorigin="anonymous"></script>
+<?php
+    session_start();
+    if(isset($_POST['test']) ){
+      echo("INSIDE POST ID");
+      $output = array();
+      $id = $_POST['test'];
+      echo("<br>");
+      echo($id);
+      $_SESSION["id"] = $id;
+    }
+    if ( isset( $_POST['btn_submit'] ) ) {
+      $ida = $_SESSION["id"];
+      $secUpdate = $_POST['Section'];
+      $probUpdate = $_POST['Problem'];
+      $causUpdate = $_POST['Cause'];
+      $solUpdate = $_POST['Solution'];
+      $conn = mysqli_connect("localhost","root","","totani_alerts");
+      $sql = "Update posts SET Section ='$secUpdate',Problem='$probUpdate',Cause='$causUpdate',
+      Solution='$solUpdate' Where id = '$ida'";
+      echo($sql);
+      $result = $conn-> query($sql);
+    }
+    ?>
 
-<p id="serverResponse"></p>
 <script>
   var test;
-  // const xhr = new XMLHttpRequest();
-  // xhr.onload = function(){
-  //   const serverResponse = document.getElementById("serverResponse");
-  //   serverResponse.innerHTML = this.responseText;
-  // }
+  var today = moment().day();
   document.addEventListener('DOMContentLoaded', function() {
     var calendarEl = document.getElementById('calendar');
     var calendar = new FullCalendar.Calendar(calendarEl, {
       headerToolbar: {
-        left: 'prev,next today',
+        right: 'daygridview',
         center: 'title',
-        right: 'dayGridMonth,timeGridWeek,timeGridDay'
+        left: 'prev,next today'
       },
-    initialDate: '2020-11-10',
+    initialView: 'timeGridDay',
+    firstDay: today,
     navLinks: true, // can click day/week names to navigate views
     selectable: true,
     selectMirror: true,
@@ -51,17 +68,14 @@
             test = id;
             console.log("ID IS "+id);
             console.log("TEST IS "+test);
-            // xhr.open("POST","update.php");
-            // xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-            // xhr.send(id);
             $.ajax({
-              url:"update.php",
+              url:"web.php",
               type:"POST",
-              data:{data:test},
-              success: function(data){
+              data:{'test':test},
+              success: function(response){
                 console.log('raw data posted is:'+id);
               }
-            })
+            });
     },
     events:'insert.php',
     });
@@ -86,7 +100,7 @@
 </style>
 </head>
 <body>
-
+  <div id="result"></div>
   <div id='calendar'></div>
 
   <form method="POST" name="search" action="web.php">
@@ -151,26 +165,5 @@
         </div>
       <!-- {{csrf_field()}} -->
     </form>
-    <?php
-    // if( isset($_POST['id']) ){
-    //   echo("INSIDE POST ID");
-    //   $output = array();
-    //   $id = $_POST['id'];
-    //   $output['items'] = "$id";
-    //   echo json_encode($output['items']);
-    // }
-    if ( isset( $_POST['btn_submit'] ) ) {
-      $secUpdate = $_POST['Section'];
-      $probUpdate = $_POST['Problem'];
-      $causUpdate = $_POST['Cause'];
-      $solUpdate = $_POST['Solution'];
-      $conn = mysqli_connect("localhost","root","","totani_alerts");
-      $sql = "Update posts SET Section ='$secUpdate',Problem='$probUpdate',Cause='$causUpdate',
-      Solution='$solUpdate'";
-      echo($sql);
-      $result = $conn-> query($sql);
-    }
-    ?>
-
 </body>
 </html>
